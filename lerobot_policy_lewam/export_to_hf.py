@@ -9,23 +9,64 @@ Usage:
     python -m lerobot_policy_lewam.export_to_hf \
         --checkpoint /path/to/checkpoint.pt \
         --output-dir /path/to/output \
+        --cameras image1 image2 \
         --repo-id ehalicki/lewam-so101  # optional, pushes to Hub
 """
 
 import argparse
 from pathlib import Path
 
-def export(checkpoint_path: str, output_dir: str | Path, repo_id: str | None = None):
+
+def export(
+    checkpoint_path: str,
+    output_dir: str | Path,
+    camera_names: list[str],
+    repo_id: str | None = None,
+):
     from lewam.models.lewam import LeWAM
+    from lerobot.configs.types import FeatureType, PolicyFeature
+    from lerobot_policy_lewam.configuration_lewam import LeWAMConfig
+    from lerobot_policy_lewam.modeling_lewam import LeWAMPolicy
 
     print(f"Loading checkpoint from {checkpoint_path}...")
-    model = LeWAM.from_checkpoint(checkpoint_path)
+    raw_model = LeWAM.from_checkpoint(checkpoint_path)
+    cfg = raw_model.config
+
+    input_features = {}
+    for cam in camera_names:
+        input_features[f"observation.images.{cam}"] = PolicyFeature(
+            type=FeatureType.VISUAL, shape=(3, 480, 640),
+        )
+    input_features["observation.state"] = PolicyFeature(
+        type=FeatureType.STATE, shape=(cfg["action_dim"],),
+    )
+
+    output_features = {
+        "action": PolicyFeature(
+            type=FeatureType.ACTION, shape=(cfg["action_dim"],),
+        ),
+    }
+
+    lewam_config = LeWAMConfig(
+        input_features=input_features,
+        output_features=output_features,
+        num_context_frames=cfg["num_context_frames"],
+        num_future_frames=cfg["num_future_frames"],
+        fps=cfg["fps"],
+        action_fps=cfg["action_fps"],
+        crop_size=raw_model.frame_latent_h * LeWAM.VJEPA_PATCH_SIZE,
+        num_ode_steps=10,
+        smooth_actions=True,
+    )
+
+    print("Building LeWAMPolicy...")
+    policy = LeWAMPolicy(lewam_config)
+    policy.lewam.load_state_dict(raw_model.state_dict())
 
     output_dir = Path(output_dir)
     print(f"Saving HuggingFace format to {output_dir}...")
-    model.save_pretrained(output_dir)
+    policy.save_pretrained(output_dir)
 
-    cfg = model.config
     card = f"""---
 library_name: lerobot
 tags:
@@ -42,6 +83,7 @@ Joint video-action flow-matching model for robot control.
 - **Context frames**: {cfg.get('num_context_frames', '?')} @ {cfg.get('fps', '?')} fps
 - **Future frames**: {cfg.get('num_future_frames', '?')}
 - **Action dim**: {cfg.get('action_dim', '?')} @ {cfg.get('action_fps', '?')} fps
+- **Cameras**: {', '.join(camera_names)}
 
 ## Usage
 
@@ -57,7 +99,7 @@ pip install "lerobot_policy_lewam @ git+https://github.com/ErykHalicki/lerobot_p
 lerobot-record --policy.type lewam --policy.pretrained_path {repo_id}
 ```
 """
-    (Path(output_dir) / "README.md").write_text(card)
+    (output_dir / "README.md").write_text(card)
 
     if repo_id:
         from huggingface_hub import HfApi
@@ -78,7 +120,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Export LeWAM checkpoint to HuggingFace format")
     parser.add_argument("--checkpoint", type=str, required=True, help="Path to .pt checkpoint")
     parser.add_argument("--output-dir", type=str, required=True, help="Output directory for HF format")
+    parser.add_argument("--cameras", type=str, nargs="+", default=["image1", "image2"],
+                        help="Camera names (default: image1 image2)")
     parser.add_argument("--repo-id", type=str, default=None, help="HuggingFace repo ID to push to")
     args = parser.parse_args()
 
-    export(args.checkpoint, args.output_dir, args.repo_id)
+    export(args.checkpoint, args.output_dir, args.cameras, args.repo_id)
