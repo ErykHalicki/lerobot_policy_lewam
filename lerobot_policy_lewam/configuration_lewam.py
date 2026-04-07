@@ -13,6 +13,14 @@ NATIVE_FPS = 30
 class LeWAMConfig(PreTrainedConfig):
     n_obs_steps: int = 1
 
+    model_dim: int = 512
+    depth: int = 8
+    num_heads: int = 8
+    mlp_ratio: float = 4.0
+    vlm_model_id: str | None = "HuggingFaceTB/SmolVLM2-256M-Video-Instruct"
+    vlm_num_layers: int = 8
+    norm_strategy: str = "q1_q99"
+
     num_ode_steps: int = 10
     smooth_actions: bool = True
     crop_size: int = 256

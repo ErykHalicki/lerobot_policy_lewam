@@ -28,6 +28,10 @@ class LeWAMPolicy(PreTrainedPolicy):
         state_dim = config.robot_state_feature.shape[0]
 
         self.lewam = LeWAM(
+            model_dim=config.model_dim,
+            depth=config.depth,
+            num_heads=config.num_heads,
+            mlp_ratio=config.mlp_ratio,
             num_context_frames=config.num_context_frames,
             num_future_frames=config.num_future_frames,
             fps=config.fps,
@@ -36,6 +40,9 @@ class LeWAMPolicy(PreTrainedPolicy):
             state_dim=state_dim,
             frame_latent_h=config.crop_size // PATCH_SIZE,
             frame_latent_w=(config.crop_size // PATCH_SIZE) * len(config.image_features),
+            vlm_model_id=config.vlm_model_id,
+            vlm_num_layers=config.vlm_num_layers,
+            norm_strategy=config.norm_strategy,
             _pretrained_vlm=False,
             norm_stats=LeWAM._dummy_norm_stats(action_dim, state_dim),
         )

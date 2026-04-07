@@ -50,6 +50,13 @@ def export(
     lewam_config = LeWAMConfig(
         input_features=input_features,
         output_features=output_features,
+        model_dim=cfg["model_dim"],
+        depth=cfg["depth"],
+        num_heads=cfg["num_heads"],
+        mlp_ratio=cfg.get("mlp_ratio", 4.0),
+        vlm_model_id=cfg.get("vlm_model_id"),
+        vlm_num_layers=cfg.get("vlm_num_layers", 8),
+        norm_strategy=cfg.get("norm_strategy", "q1_q99"),
         num_context_frames=cfg["num_context_frames"],
         num_future_frames=cfg["num_future_frames"],
         fps=cfg["fps"],
