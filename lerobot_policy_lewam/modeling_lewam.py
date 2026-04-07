@@ -37,7 +37,7 @@ class LeWAMPolicy(PreTrainedPolicy):
             frame_latent_h=config.crop_size // PATCH_SIZE,
             frame_latent_w=(config.crop_size // PATCH_SIZE) * len(config.image_features),
             _pretrained_vlm=False,
-            stats_path=LeWAM._dummy_norm_stats(action_dim, state_dim),
+            norm_stats=LeWAM._dummy_norm_stats(action_dim, state_dim),
         )
 
         self._camera_keys = sorted(config.image_features.keys())
