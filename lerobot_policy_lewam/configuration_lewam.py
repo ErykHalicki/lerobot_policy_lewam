@@ -23,8 +23,8 @@ class LeWAMConfig(PreTrainedConfig):
 
     num_ode_steps: int = 4
     smooth_actions: bool = True
-    test_circle: bool = True
-    crop_size: int = 256
+
+    crop_size: int = 224
     fps: float = 5.0
     action_fps: float = 30.0
     num_context_frames: int = 32
