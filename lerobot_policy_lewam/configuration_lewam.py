@@ -13,8 +13,6 @@ NATIVE_FPS = 30
 class LeWAMConfig(PreTrainedConfig):
     n_obs_steps: int = 1
 
-    lewam_checkpoint_path: str | None = None
-
     num_ode_steps: int = 10
     smooth_actions: bool = True
     crop_size: int = 256

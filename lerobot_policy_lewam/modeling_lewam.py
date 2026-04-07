@@ -24,19 +24,21 @@ class LeWAMPolicy(PreTrainedPolicy):
 
         from wam.models.lewam import LeWAM
 
-        if config.lewam_checkpoint_path:
-            self.lewam = LeWAM.from_checkpoint(config.lewam_checkpoint_path)
-        else:
-            self.lewam = LeWAM(
-                num_context_frames=config.num_context_frames,
-                num_future_frames=config.num_future_frames,
-                fps=config.fps,
-                action_fps=config.action_fps,
-                action_dim=config.action_feature.shape[0],
-                state_dim=config.robot_state_feature.shape[0],
-                frame_latent_h=config.crop_size // PATCH_SIZE,
-                frame_latent_w=(config.crop_size // PATCH_SIZE) * len(config.image_features),
-            )
+        action_dim = config.action_feature.shape[0]
+        state_dim = config.robot_state_feature.shape[0]
+
+        self.lewam = LeWAM(
+            num_context_frames=config.num_context_frames,
+            num_future_frames=config.num_future_frames,
+            fps=config.fps,
+            action_fps=config.action_fps,
+            action_dim=action_dim,
+            state_dim=state_dim,
+            frame_latent_h=config.crop_size // PATCH_SIZE,
+            frame_latent_w=(config.crop_size // PATCH_SIZE) * len(config.image_features),
+            _pretrained_vlm=False,
+            stats_path=LeWAM._dummy_norm_stats(action_dim, state_dim),
+        )
 
         self._camera_keys = sorted(config.image_features.keys())
         self._num_cameras = len(self._camera_keys)
