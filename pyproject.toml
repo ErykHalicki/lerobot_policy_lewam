@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lerobot_policy_lewam"
+version = "0.1.0"
+description = "LeWAM flow-matching world-action model policy for LeRobot"
+requires-python = ">=3.12"
+dependencies = [
+    "lewam @ git+https://github.com/ErykHalicki/LeWAM.git",
+    "lerobot[feetech] @ git+https://github.com/huggingface/lerobot.git@07502868e58095b437e5dd5a480fecc65a6f29dc",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lerobot_policy_lewam*"]

@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: lerobot_policy_lewam
+Version: 0.1.0
+Summary: LeWAM flow-matching world-action model policy for LeRobot
+Requires-Python: >=3.12
+Requires-Dist: lewam
+Requires-Dist: lerobot[feetech] @ git+https://github.com/huggingface/lerobot.git@07502868e58095b437e5dd5a480fecc65a6f29dc
