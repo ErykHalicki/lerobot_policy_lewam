@@ -1,9 +1,9 @@
-"""Smoke test: random-init LeWAM policy on a streaming dataset sample."""
+"""Smoke test: random-init LeWAM policy on a single dataset frame."""
 import torch
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from lerobot.datasets.streaming_dataset import StreamingLeRobotDataset
+from lerobot.datasets.lerobot_dataset import LeRobotDataset
 from lerobot.configs.types import FeatureType, PolicyFeature
 from lerobot_policy_lewam import LeWAMConfig, LeWAMPolicy
 
@@ -23,10 +23,11 @@ print("Building policy (random init)...")
 policy = LeWAMPolicy(config)
 policy.eval()
 
-print("Loading streaming dataset...")
-ds = StreamingLeRobotDataset(REPO_ID, episodes=[0], shuffle=False)
-sample = next(iter(ds))
+print("Loading dataset (episode 0 only)...")
+ds = LeRobotDataset(REPO_ID, episodes=[0])
+sample = ds[len(ds) // 2]
 print(f"Task: {sample['task']}")
+print(f"Frame index: {sample['frame_index']}")
 
 batch = {k: v.unsqueeze(0) if isinstance(v, torch.Tensor) else v for k, v in sample.items()}
 batch["task"] = [sample["task"]]
