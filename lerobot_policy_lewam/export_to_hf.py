@@ -15,7 +15,7 @@ Usage:
 import argparse
 from pathlib import Path
 
-def export(checkpoint_path: str, output_dir: str, repo_id: str | None = None):
+def export(checkpoint_path: str, output_dir: str | Path, repo_id: str | None = None):
     from lewam.models.lewam import LeWAM
 
     print(f"Loading checkpoint from {checkpoint_path}...")
@@ -24,6 +24,40 @@ def export(checkpoint_path: str, output_dir: str, repo_id: str | None = None):
     output_dir = Path(output_dir)
     print(f"Saving HuggingFace format to {output_dir}...")
     model.save_pretrained(output_dir)
+
+    cfg = model.config
+    card = f"""---
+library_name: lerobot
+tags:
+- lewam
+- robotics
+- flow-matching
+---
+
+# LeWAM
+
+Joint video-action flow-matching model for robot control.
+
+- **Architecture**: {cfg.get('depth', '?')}-layer DiT, dim {cfg.get('model_dim', '?')}
+- **Context frames**: {cfg.get('num_context_frames', '?')} @ {cfg.get('fps', '?')} fps
+- **Future frames**: {cfg.get('num_future_frames', '?')}
+- **Action dim**: {cfg.get('action_dim', '?')} @ {cfg.get('action_fps', '?')} fps
+
+## Usage
+
+```python
+from lewam.models.lewam import LeWAM
+model = LeWAM.from_pretrained("{repo_id}")
+```
+
+Or with [lerobot](https://github.com/huggingface/lerobot):
+
+```bash
+pip install "lerobot_policy_lewam @ git+https://github.com/ErykHalicki/lerobot_policy_lewam.git"
+lerobot-record --policy.type lewam --policy.pretrained_path {repo_id}
+```
+"""
+    (Path(output_dir) / "README.md").write_text(card)
 
     if repo_id:
         from huggingface_hub import HfApi
