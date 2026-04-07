@@ -146,6 +146,9 @@ class LeWAMPolicy(PreTrainedPolicy):
     def predict_action_chunk(self, batch: dict[str, Tensor], **kwargs) -> Tensor:
         self.eval()
 
+        frame = torch.stack([batch[k] for k in self._camera_keys], dim=1)
+        self._frame_buffer.append(frame)
+
         frames = self._build_context_from_buffer()
         context_tokens = self.lewam.encode_video(frames)
 
