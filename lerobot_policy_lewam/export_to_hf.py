@@ -74,6 +74,11 @@ def export(
     print(f"Saving HuggingFace format to {output_dir}...")
     policy.save_pretrained(output_dir)
 
+    from lerobot_policy_lewam.processor_lewam import make_lewam_pre_post_processors
+    preprocessor, postprocessor = make_lewam_pre_post_processors(lewam_config)
+    preprocessor.save_pretrained(output_dir)
+    postprocessor.save_pretrained(output_dir)
+
     card = f"""---
 library_name: lerobot
 tags:
