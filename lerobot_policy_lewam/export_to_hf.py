@@ -16,7 +16,7 @@ import argparse
 from pathlib import Path
 
 def export(checkpoint_path: str, output_dir: str, repo_id: str | None = None):
-    from wam.models.lewam import LeWAM
+    from lewam.models.lewam import LeWAM
 
     print(f"Loading checkpoint from {checkpoint_path}...")
     model = LeWAM.from_checkpoint(checkpoint_path)

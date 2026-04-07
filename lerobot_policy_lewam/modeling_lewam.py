@@ -22,7 +22,7 @@ class LeWAMPolicy(PreTrainedPolicy):
         config.validate_features()
         self.config = config
 
-        from wam.models.lewam import LeWAM
+        from lewam.models.lewam import LeWAM
 
         action_dim = config.action_feature.shape[0]
         state_dim = config.robot_state_feature.shape[0]
