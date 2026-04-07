@@ -9,7 +9,7 @@ description = "LeWAM flow-matching world-action model policy for LeRobot"
 requires-python = ">=3.12"
 dependencies = [
     "lewam @ git+https://github.com/ErykHalicki/LeWAM.git",
-    "lerobot[feetech] @ git+https://github.com/huggingface/lerobot.git@07502868e58095b437e5dd5a480fecc65a6f29dc",
+    "lerobot[feetech,async] @ git+https://github.com/huggingface/lerobot.git@07502868e58095b437e5dd5a480fecc65a6f29dc",
 ]
 
 [tool.setuptools.packages.find]
