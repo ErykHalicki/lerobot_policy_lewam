@@ -146,6 +146,13 @@ class LeWAMPolicy(PreTrainedPolicy):
     def predict_action_chunk(self, batch: dict[str, Tensor], **kwargs) -> Tensor:
         self.eval()
 
+        state = batch["observation.state"]
+        if state.dim() == 3:
+            state = state.squeeze(1)
+
+        if self.config.test_circle:
+            return self._generate_test_motion(state)
+
         frame = torch.stack([batch[k] for k in self._camera_keys], dim=1)
         self._frame_buffer.append(frame)
 
@@ -157,9 +164,6 @@ class LeWAMPolicy(PreTrainedPolicy):
             last_frame = torch.cat([frames[:, i, -1] for i in range(self._num_cameras)], dim=-1)
             lang_tokens, lang_mask = self.lewam.encode_language(batch["task"], images=last_frame)
 
-        state = batch["observation.state"]
-        if state.dim() == 3:
-            state = state.squeeze(1)
         norm_state = self.lewam.normalize_state(state)
 
         _, pred_actions = self.lewam.ode_solve(
@@ -172,6 +176,17 @@ class LeWAMPolicy(PreTrainedPolicy):
         dt = 1.0 / self.config.action_fps
         abs_actions = state.unsqueeze(1) + torch.cumsum(rel_actions * dt, dim=1)
         return abs_actions
+
+    def _generate_test_motion(self, state: Tensor) -> Tensor:
+        B = state.shape[0]
+        n = self.config.n_action_steps
+        amplitude = 10.0
+        period = self.config.action_fps * 2.0
+        actions = state.unsqueeze(1).expand(B, n, -1).clone()
+        t = torch.arange(n, device=state.device, dtype=state.dtype) + self._step_counter
+        actions[:, :, 0] = state[:, 0:1] + amplitude * torch.sin(2.0 * torch.pi * t / period)
+        self._step_counter += n
+        return actions
 
     # ── Helpers ──────────────────────────────────────────────────────────
 

@@ -21,8 +21,9 @@ class LeWAMConfig(PreTrainedConfig):
     vlm_num_layers: int = 8
     norm_strategy: str = "q1_q99"
 
-    num_ode_steps: int = 10
+    num_ode_steps: int = 4
     smooth_actions: bool = True
+    test_circle: bool = False
     crop_size: int = 256
     fps: float = 5.0
     action_fps: float = 30.0
