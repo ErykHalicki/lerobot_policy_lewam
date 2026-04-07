@@ -9,6 +9,7 @@ from lerobot.processor import (
     PolicyProcessorPipeline,
 )
 from lerobot.processor.converters import policy_action_to_transition, transition_to_policy_action
+from lerobot.processor.rename_processor import RenameObservationsProcessorStep
 from lerobot.utils.constants import POLICY_POSTPROCESSOR_DEFAULT_NAME, POLICY_PREPROCESSOR_DEFAULT_NAME
 
 from .configuration_lewam import LeWAMConfig
@@ -22,6 +23,7 @@ def make_lewam_pre_post_processors(
     PolicyProcessorPipeline[PolicyAction, PolicyAction],
 ]:
     input_steps = [
+        RenameObservationsProcessorStep(),
         AddBatchDimensionProcessorStep(),
         DeviceProcessorStep(device=config.device),
     ]
