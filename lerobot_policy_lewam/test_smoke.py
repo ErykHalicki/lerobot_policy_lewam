@@ -38,7 +38,7 @@ with torch.no_grad():
     for step in range(7):
         action = policy.select_action(batch)
         actions.append(action.squeeze().cpu())
-        print(f"  step {step}: {action.squeeze()[:3].tolist()}")
+        print(f"  step {step}: {action.squeeze()[:].tolist()}")
 
 actions = torch.stack(actions)
 
