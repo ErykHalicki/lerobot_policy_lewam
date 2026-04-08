@@ -13,8 +13,11 @@ NATIVE_FPS = 30
 class LeWAMConfig(PreTrainedConfig):
     n_obs_steps: int = 1
 
+    # TODO: lerobot factory passes CLI config (with defaults) into from_pretrained,
+    # so the saved model config is never loaded. These defaults must match the
+    # pretrained model until we fix config merging.
     model_dim: int = 512
-    depth: int = 8
+    depth: int = 12
     num_heads: int = 8
     mlp_ratio: float = 4.0
     vlm_model_id: str | None = "HuggingFaceTB/SmolVLM2-256M-Video-Instruct"
@@ -61,7 +64,7 @@ class LeWAMConfig(PreTrainedConfig):
 
     @property
     def action_delta_indices(self) -> list[int]:
-        return list(range(self.action_horizon))
+        return list(range(self.action_horizon + 1))
 
     @property
     def reward_delta_indices(self) -> None:
