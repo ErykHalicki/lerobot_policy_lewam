@@ -63,8 +63,8 @@ class LeWAMPolicy(PreTrainedPolicy):
         self._frame_buffer = deque(maxlen=self.config.num_context_frames * 2)
         self._step_counter = 0
 
-    def get_optim_params(self) -> dict:
-        return {"params": [p for p in self.parameters() if p.requires_grad]}
+    def get_optim_params(self) -> list[dict]:
+        return [{"params": [p for p in self.parameters() if p.requires_grad]}]
 
     # ── Training ─────────────────────────────────────────────────────────
 
