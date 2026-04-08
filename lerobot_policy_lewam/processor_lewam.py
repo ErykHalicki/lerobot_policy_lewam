@@ -9,6 +9,7 @@ from lerobot.processor import (
     PolicyProcessorPipeline,
 )
 from lerobot.processor.converters import policy_action_to_transition, transition_to_policy_action
+from lerobot.processor.normalize_processor import NormalizerProcessorStep, UnnormalizerProcessorStep
 from lerobot.processor.rename_processor import RenameObservationsProcessorStep
 from lerobot.utils.constants import POLICY_POSTPROCESSOR_DEFAULT_NAME, POLICY_PREPROCESSOR_DEFAULT_NAME
 
@@ -22,12 +23,23 @@ def make_lewam_pre_post_processors(
     PolicyProcessorPipeline[dict[str, Any], dict[str, Any]],
     PolicyProcessorPipeline[PolicyAction, PolicyAction],
 ]:
+    features = {**config.input_features, **config.output_features}
     input_steps = [
         RenameObservationsProcessorStep(),
+        NormalizerProcessorStep(
+            features=features,
+            norm_map=config.normalization_mapping,
+            stats=dataset_stats,
+        ),
         AddBatchDimensionProcessorStep(),
         DeviceProcessorStep(device=config.device),
     ]
     output_steps = [
+        UnnormalizerProcessorStep(
+            features=config.output_features,
+            norm_map=config.normalization_mapping,
+            stats=dataset_stats,
+        ),
         DeviceProcessorStep(device="cpu"),
     ]
 
