@@ -99,12 +99,7 @@ Joint video-action flow-matching model for robot control.
 
 ## Usage
 
-```python
-from lewam.models.lewam import LeWAM
-model = LeWAM.from_pretrained("{repo_id}")
-```
-
-Or with [lerobot](https://github.com/huggingface/lerobot):
+With [lerobot](https://github.com/huggingface/lerobot):
 
 ```bash
 pip install "lerobot_policy_lewam @ git+https://github.com/ErykHalicki/lerobot_policy_lewam.git"

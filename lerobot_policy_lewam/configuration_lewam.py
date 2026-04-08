@@ -18,7 +18,7 @@ class LeWAMConfig(PreTrainedConfig):
     num_heads: int = 8
     mlp_ratio: float = 4.0
     vlm_model_id: str | None = "HuggingFaceTB/SmolVLM2-256M-Video-Instruct"
-    vlm_num_layers: int = 8
+    vlm_num_layers: int = 4
     norm_strategy: str = "q1_q99"
 
     num_ode_steps: int = 4

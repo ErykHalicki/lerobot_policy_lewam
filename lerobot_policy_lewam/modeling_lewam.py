@@ -17,7 +17,7 @@ class LeWAMPolicy(PreTrainedPolicy):
     config_class = LeWAMConfig
     name = "lewam"
 
-    def __init__(self, config: LeWAMConfig, dataset_stats: dict[str, Any] | None = None):
+    def __init__(self, config: LeWAMConfig, dataset_stats: dict[str, Any] | None = None, **kwargs):
         super().__init__(config, dataset_stats)
         config.validate_features()
         self.config = config
