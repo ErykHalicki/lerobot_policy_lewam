@@ -76,7 +76,7 @@ class LeWAMPolicy(PreTrainedPolicy):
         context_tokens = self.lewam.encode_video(ctx_frames)
         future_tokens = self.lewam.encode_video(fut_frames)
 
-        state = batch["observation.state"].squeeze(1)
+        state = batch["observation.state"][:, self.config.num_context_frames - 1]
         state = self.lewam.normalize_state(state)
 
         actions = batch["action"]
