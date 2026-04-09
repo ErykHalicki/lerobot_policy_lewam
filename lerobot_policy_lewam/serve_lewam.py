@@ -78,7 +78,7 @@ def pca_rgb(tokens, T, patch_h, patch_w):
 
 
 @torch.no_grad()
-def infer(policy, frames, state_np, task):
+def infer(policy, frames, state_np, task, ode_steps=None):
     device = next(policy.parameters()).device
     model = policy.lewam
     cfg = policy.config
@@ -99,7 +99,7 @@ def infer(policy, frames, state_np, task):
         norm_state,
         lang_tokens,
         lang_mask,
-        num_steps=cfg.num_ode_steps,
+        num_steps=ode_steps or cfg.num_ode_steps,
         smooth=cfg.smooth_actions,
     )
 
@@ -144,7 +144,8 @@ def main():
                 t0 = time.perf_counter()
 
                 frames = decode_frames(msg["frames"], args.device)
-                actions, future_viz = infer(policy, frames, msg["state"], msg["task"])
+                ode_steps = msg.get("ode_steps", policy.config.num_ode_steps)
+                actions, future_viz = infer(policy, frames, msg["state"], msg["task"], ode_steps=ode_steps)
 
                 elapsed = time.perf_counter() - t0
                 print(f"Inference {elapsed:.2f}s  actions {actions.shape}")
