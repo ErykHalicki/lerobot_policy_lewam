@@ -150,9 +150,6 @@ class LeWAMPolicy(PreTrainedPolicy):
         if state.dim() == 3:
             state = state.squeeze(1)
 
-        frame = torch.stack([batch[k] for k in self._camera_keys], dim=1)
-        self._frame_buffer.append(frame)
-
         frames = self._build_context_from_buffer()
         context_tokens = self.lewam.encode_video(frames)
 
