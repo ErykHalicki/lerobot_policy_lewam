@@ -79,7 +79,7 @@ def pca_rgb(tokens, T, patch_h, patch_w):
 
 @torch.no_grad()
 @torch.autocast("cuda", dtype=torch.float16)
-def infer(policy, frames, state_np, task, ode_steps=None):
+def infer(policy, frames, state_np, task, ode_steps=None, cfg_scale=1.0):
     device = next(policy.parameters()).device
     model = policy.lewam
     cfg = policy.config
@@ -102,6 +102,7 @@ def infer(policy, frames, state_np, task, ode_steps=None):
         lang_mask,
         num_steps=ode_steps or cfg.num_ode_steps,
         smooth=cfg.smooth_actions,
+        cfg_scale=cfg_scale,
     )
 
     rel_actions = model.unnormalize_actions(pred_actions)
@@ -152,7 +153,8 @@ def main():
 
                     frames = decode_frames(msg["frames"], args.device)
                     ode_steps = msg.get("ode_steps", policy.config.num_ode_steps)
-                    actions, future_viz = infer(policy, frames, msg["state"], msg["task"], ode_steps=ode_steps)
+                    cfg_scale = msg.get("cfg_scale", 1.0)
+                    actions, future_viz = infer(policy, frames, msg["state"], msg["task"], ode_steps=ode_steps, cfg_scale=cfg_scale)
 
                     elapsed = time.perf_counter() - t0
                     print(f"Inference {elapsed:.2f}s  actions {actions.shape}")
