@@ -50,49 +50,37 @@ lerobot-train \
 
 ### Remote Inference (policy server)
 
-Run the policy on a powerful machine (e.g. a desktop GPU) and execute actions on a separate machine connected to the robot. The two communicate over gRPC.
+Run the policy on a GPU machine and execute actions on a separate machine connected to the robot. The client sends all context frames in a single batch, the server runs inference and returns an action chunk.
 
 **1. Start the policy server (PC with GPU)**
 
 ```bash
 python -m lerobot_policy_lewam.serve_lewam \
-  --host=0.0.0.0 \
-  --port=8080
+  --model ehalicki/lewam-so101-multitask-finetuned \
+  --device cuda \
+  --port 8080
 ```
-
-The server waits for the robot client to connect. When the client connects, it tells the server which model to load. The server downloads the model from HuggingFace Hub (or loads from a local path) and begins accepting observations.
 
 **2. Start the robot client (laptop with robot)**
 
 ```bash
-python -m lerobot.async_inference.robot_client \
-  --robot.type=so101_follower \
-  --robot.port=/dev/tty.usbmodem58760431541 \
-  --robot.cameras="{front: {type: opencv, index_or_path: 0, width: 1920, height: 1080, fps: 30}}" \
-  --robot.id=black \
-  --task="pick up the puzzle piece" \
-  --server_address=<PC_IP>:8080 \
-  --policy_type=lewam \
-  --pretrained_name_or_path=your-hf-username/lewam-model \
-  --policy_device=cuda \
-  --client_device=cpu
+python src/lewam/scripts/rollout.py \
+  --server <PC_IP> \
+  --port 8080 \
+  --robot-port /dev/tty.usbmodem5B141136531
 ```
 
-The client streams camera frames and robot state to the server, receives predicted action chunks back, and executes them on the robot.
+The client maintains a 32-frame context buffer locally, JPEG-encodes and sends the full context with robot state and task to the server each inference cycle. The server returns predicted actions and PCA-projected future video embeddings for visualization. Actions are executed at 30fps with live rerun visualization of camera feeds and predicted futures.
 
-To use a local model directory instead of HuggingFace Hub, pass a path:
-
-```bash
---pretrained_name_or_path=/path/to/lewam-hf
-```
+To use a different model, pass `--model` with a HuggingFace repo ID or local path.
 
 ## Configuration
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `num_ode_steps` | `10` | Euler integration steps during inference |
+| `num_ode_steps` | `2` | Euler integration steps during inference |
 | `smooth_actions` | `True` | Apply Savitzky-Golay smoothing to predicted actions |
-| `crop_size` | `256` | Input image crop size |
+| `crop_size` | `224` | Input image crop size |
 | `fps` | `5.0` | Video frame rate for context/future frames |
 | `action_fps` | `30.0` | Action prediction frame rate |
 | `num_context_frames` | `32` | Number of past frames for conditioning |
