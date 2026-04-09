@@ -127,24 +127,30 @@ class LeWAMPolicy(PreTrainedPolicy):
 
     # ── Inference ────────────────────────────────────────────────────────
 
+    def _append_frame(self, batch: dict[str, Tensor]):
+        frame = torch.stack([batch[k] for k in self._camera_keys], dim=1)
+        self._frame_buffer.append(frame)
+
     @torch.no_grad()
     def select_action(self, batch: dict[str, Tensor], **kwargs) -> Tensor:
         self.eval()
 
         if self._step_counter % self.config.video_stride == 0:
-            frame = torch.stack([batch[k] for k in self._camera_keys], dim=1)
-            self._frame_buffer.append(frame)
+            self._append_frame(batch)
         self._step_counter += 1
 
         if len(self._action_queue) == 0:
-            actions = self.predict_action_chunk(batch)
+            actions = self.predict_action_chunk(batch, _frame_appended=True)
             actions = actions[:, :self.config.n_action_steps]
             self._action_queue.extend(actions.transpose(0, 1))
         return self._action_queue.popleft()
 
     @torch.no_grad()
-    def predict_action_chunk(self, batch: dict[str, Tensor], **kwargs) -> Tensor:
+    def predict_action_chunk(self, batch: dict[str, Tensor], _frame_appended: bool = False, **kwargs) -> Tensor:
         self.eval()
+
+        if not _frame_appended:
+            self._append_frame(batch)
 
         state = batch["observation.state"]
         if state.dim() == 3:
