@@ -78,6 +78,7 @@ def pca_rgb(tokens, T, patch_h, patch_w):
 
 
 @torch.no_grad()
+@torch.autocast("cuda", dtype=torch.float16)
 def infer(policy, frames, state_np, task, ode_steps=None):
     device = next(policy.parameters()).device
     model = policy.lewam
@@ -126,7 +127,8 @@ def main():
 
     print(f"Loading {args.model} on {args.device}...")
     policy = load_model(args.model, args.device)
-    print("Model loaded.")
+    policy.lewam = torch.compile(policy.lewam)
+    print("Model loaded and compiled.")
 
     srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
