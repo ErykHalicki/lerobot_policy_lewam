@@ -1,2 +1,0 @@
-lewam
-lerobot[feetech] @ git+https://github.com/huggingface/lerobot.git@07502868e58095b437e5dd5a480fecc65a6f29dc
