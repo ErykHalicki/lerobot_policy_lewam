@@ -56,7 +56,7 @@ class LeWAMPolicy(PreTrainedPolicy):
         patch_h = self.config.crop_size // PATCH_SIZE
         patch_w = patch_h * self._num_cameras
         if patch_h != self.lewam.frame_latent_h or patch_w != self.lewam.frame_latent_w:
-            self.lewam.set_patch_grid(patch_h, patch_w)
+            self.lewam.set_patch_grid(patch_h, patch_w, self._num_cameras)
 
     def reset(self):
         self._action_queue = deque([], maxlen=self.config.n_action_steps)
