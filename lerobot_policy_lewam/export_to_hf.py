@@ -57,13 +57,9 @@ def export(
         vlm_model_id=cfg.get("vlm_model_id"),
         vlm_num_layers=cfg.get("vlm_num_layers", 8),
         norm_strategy=cfg.get("norm_strategy", "q1_q99"),
-        num_context_frames=cfg["num_context_frames"],
         num_future_frames=cfg["num_future_frames"],
         fps=cfg["fps"],
         action_fps=cfg["action_fps"],
-        crop_size=raw_model.frame_latent_h * LeWAM.VJEPA_PATCH_SIZE,
-        num_ode_steps=10,
-        smooth_actions=True,
     )
 
     print("Building LeWAMPolicy...")
