@@ -92,6 +92,7 @@ def infer(policy, frames, state_np, task, ode_steps=None, cfg_scale=1.0):
     if frame_latent_h != model.frame_latent_h or frame_latent_w != model.frame_latent_w:
         model.set_patch_grid(frame_latent_h, frame_latent_w, n_cams)
 
+    frames = frames[:, :, -model.num_context_frames:]
     context_tokens = model.encode_video(frames)
 
     state = torch.from_numpy(state_np).float().unsqueeze(0).to(device)
