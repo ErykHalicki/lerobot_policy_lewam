@@ -132,29 +132,39 @@ def main():
     srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     srv.bind(("0.0.0.0", args.port))
     srv.listen(1)
+    srv.settimeout(1.0)
     print(f"Listening on 0.0.0.0:{args.port}")
 
-    while True:
-        conn, addr = srv.accept()
-        conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-        print(f"Client connected: {addr}")
-        try:
-            while True:
-                msg = recv_msg(conn)
-                t0 = time.perf_counter()
+    try:
+        while True:
+            try:
+                conn, addr = srv.accept()
+            except socket.timeout:
+                continue
+            conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+            print(f"Client connected: {addr}")
+            try:
+                while True:
+                    msg = recv_msg(conn)
+                    t0 = time.perf_counter()
 
-                frames = decode_frames(msg["frames"], args.device)
-                ode_steps = msg.get("ode_steps", policy.config.num_ode_steps)
-                actions, future_viz = infer(policy, frames, msg["state"], msg["task"], ode_steps=ode_steps)
+                    frames = decode_frames(msg["frames"], args.device)
+                    ode_steps = msg.get("ode_steps", policy.config.num_ode_steps)
+                    actions, future_viz = infer(policy, frames, msg["state"], msg["task"], ode_steps=ode_steps)
 
-                elapsed = time.perf_counter() - t0
-                print(f"Inference {elapsed:.2f}s  actions {actions.shape}")
+                    elapsed = time.perf_counter() - t0
+                    print(f"Inference {elapsed:.2f}s  actions {actions.shape}")
 
-                send_msg(conn, {"actions": actions, "future_viz": future_viz})
-        except ConnectionError:
-            print(f"Client {addr} disconnected")
-        finally:
-            conn.close()
+                    send_msg(conn, {"actions": actions, "future_viz": future_viz})
+            except ConnectionError:
+                print(f"Client {addr} disconnected")
+            finally:
+                conn.close()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        srv.close()
+        print("Server stopped.")
 
 
 if __name__ == "__main__":
