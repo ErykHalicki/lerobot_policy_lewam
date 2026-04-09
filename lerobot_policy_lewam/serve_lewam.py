@@ -128,8 +128,11 @@ def main():
 
     print(f"Loading {args.model} on {args.device}...")
     policy = load_model(args.model, args.device)
-    policy.lewam = torch.compile(policy.lewam)
-    print("Model loaded and compiled.")
+    if torch.cuda.is_available() and torch.cuda.get_device_capability()[0] >= 8:
+        policy.lewam = torch.compile(policy.lewam, dynamic=True)
+        print("Model loaded and compiled.")
+    else:
+        print("Model loaded (no compile, GPU SM < 8.0).")
 
     srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

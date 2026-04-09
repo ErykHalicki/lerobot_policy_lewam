@@ -30,9 +30,9 @@ class LeWAMConfig(PreTrainedConfig):
     crop_size: int = 224
     fps: float = 5.0
     action_fps: float = 30.0
-    num_context_frames: int = 32
-    num_future_frames: int = 8
-    n_action_steps: int = 48
+    num_context_frames: int = 16
+    num_future_frames: int = 12
+    n_action_steps: int = 72
 
     action_weight: float = 1.0
     lang_drop_rate: float = 0.1
