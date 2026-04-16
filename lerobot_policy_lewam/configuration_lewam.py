@@ -16,12 +16,12 @@ class LeWAMConfig(PreTrainedConfig):
     # TODO: lerobot factory passes CLI config (with defaults) into from_pretrained,
     # so the saved model config is never loaded. These defaults must match the
     # pretrained model until we fix config merging.
-    model_dim: int = 512
-    depth: int = 12
-    num_heads: int = 8
+    model_dim: int = 768
+    depth: int = 16
+    num_heads: int = 12
     mlp_ratio: float = 4.0
     vlm_model_id: str | None = "HuggingFaceTB/SmolVLM2-256M-Video-Instruct"
-    vlm_num_layers: int = 4
+    vlm_num_layers: int = 16
     norm_strategy: str = "q1_q99"
 
     num_ode_steps: int = 2
@@ -30,12 +30,12 @@ class LeWAMConfig(PreTrainedConfig):
     crop_size: int = 224
     fps: float = 5.0
     action_fps: float = 30.0
-    num_context_frames: int = 16
-    num_future_frames: int = 12
-    n_action_steps: int = 72
+    num_context_frames: int = 8
+    num_future_frames: int = 8
+    n_action_steps: int = 48
 
     action_weight: float = 1.0
-    lang_drop_rate: float = 0.1
+    lang_drop_rate: float = 0.0
 
     normalization_mapping: dict[str, NormalizationMode] = field(
         default_factory=lambda: {
