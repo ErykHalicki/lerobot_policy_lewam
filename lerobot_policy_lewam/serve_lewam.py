@@ -115,6 +115,7 @@ def infer(policy, frames, state_np, task, ode_steps=None, cfg_scale=1.0):
     )
 
     rel_actions = model.unnormalize_actions(pred_actions)
+    rel_actions[:, :, -1] *= 1.1
     dt = 1.0 / cfg.action_fps
     abs_actions = state.unsqueeze(1) + torch.cumsum(rel_actions * dt, dim=1)
 
