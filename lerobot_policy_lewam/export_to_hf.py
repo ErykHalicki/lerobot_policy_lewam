@@ -60,6 +60,7 @@ def export(
         num_future_frames=cfg["num_future_frames"],
         fps=cfg["fps"],
         action_fps=cfg["action_fps"],
+        action_only=cfg.get("action_only", False),
     )
 
     print("Building LeWAMPolicy...")

@@ -44,6 +44,7 @@ class LeWAMPolicy(PreTrainedPolicy):
             vlm_num_layers=config.vlm_num_layers,
             norm_strategy=config.norm_strategy,
             _pretrained_vlm=False,
+            action_only=config.action_only,
             norm_stats=LeWAM._dummy_norm_stats(action_dim, state_dim),
         )
 

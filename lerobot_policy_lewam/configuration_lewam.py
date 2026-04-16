@@ -34,6 +34,7 @@ class LeWAMConfig(PreTrainedConfig):
     num_future_frames: int = 8
     n_action_steps: int = 48
 
+    action_only: bool = False
     action_weight: float = 1.0
     lang_drop_rate: float = 0.0
 
