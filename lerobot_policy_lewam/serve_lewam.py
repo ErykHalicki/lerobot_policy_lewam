@@ -118,12 +118,14 @@ def infer(policy, frames, state_np, task, ode_steps=None, cfg_scale=1.0):
     dt = 1.0 / cfg.action_fps
     abs_actions = state.unsqueeze(1) + torch.cumsum(rel_actions * dt, dim=1)
 
-    future_viz = pca_rgb(
-        pred_vid[0],
-        model.num_future_tubelets,
-        model.frame_latent_h,
-        model.frame_latent_w,
-    )
+    future_viz = None
+    if pred_vid is not None:
+        future_viz = pca_rgb(
+            pred_vid[0],
+            model.num_future_tubelets,
+            model.frame_latent_h,
+            model.frame_latent_w,
+        )
 
     return abs_actions[0, : cfg.n_action_steps].cpu().numpy(), future_viz
 
@@ -171,7 +173,10 @@ def main():
                     elapsed = time.perf_counter() - t0
                     print(f"Inference {elapsed:.2f}s  actions {actions.shape}")
 
-                    send_msg(conn, {"actions": actions, "future_viz": future_viz})
+                    resp = {"actions": actions}
+                    if future_viz is not None:
+                        resp["future_viz"] = future_viz
+                    send_msg(conn, resp)
             except ConnectionError:
                 print(f"Client {addr} disconnected")
             finally:
